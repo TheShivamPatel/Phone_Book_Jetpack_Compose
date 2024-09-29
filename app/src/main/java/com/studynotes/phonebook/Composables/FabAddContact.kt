@@ -1,5 +1,6 @@
 package com.studynotes.phonebook.Composables
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +40,8 @@ import com.studynotes.phonebook.Contact
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FabAddContact(mutableList: MutableList<Contact>) {
+
+    val context = LocalContext.current
 
     var isBottomSheetOpen by remember {
         mutableStateOf(false)
@@ -89,9 +92,17 @@ fun FabAddContact(mutableList: MutableList<Contact>) {
                 Spacer(Modifier.height(30.dp))
                 Button(
                     onClick = {
-                        val contact = Contact(firstName, secondName, number)
-                        mutableList.add(contact)
-                        isBottomSheetOpen = false
+                        if (firstName.isBlank() || secondName.isBlank() || number.isBlank()) {
+                            Toast.makeText(
+                                context,
+                                "Please fill required filed",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            val contact = Contact(firstName, secondName, number)
+                            mutableList.add(contact)
+                            isBottomSheetOpen = false
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -109,6 +120,10 @@ fun bottomSheetTextField(
     leadingIcon: ImageVector,
     keyboardType: KeyboardType
 ): String {
+
+    var isInputError by remember {
+        mutableStateOf(false)
+    }
 
     var text by remember {
         mutableStateOf("")
@@ -135,6 +150,7 @@ fun bottomSheetTextField(
         },
         shape = RoundedCornerShape(16.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        isError = isInputError
     )
 
     return text

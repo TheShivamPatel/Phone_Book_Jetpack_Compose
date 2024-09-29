@@ -1,5 +1,6 @@
 package com.studynotes.phonebook
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,9 +24,9 @@ import com.studynotes.phonebook.Composables.SearchBox
 import com.studynotes.phonebook.Composables.TopBar
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             val listOfContact by remember {
                 mutableStateOf(mutableStateListOf<Contact>())
@@ -35,7 +37,10 @@ class MainActivity : ComponentActivity() {
             }
 
             val filteredContact = listOfContact.filter {
-                it.firstName.contains(searchValue, ignoreCase = true) || it.phone.contains(searchValue, ignoreCase = true) || it.lastName.contains(searchValue, ignoreCase = true)
+                it.firstName.contains(searchValue, ignoreCase = true) || it.phone.contains(
+                    searchValue,
+                    ignoreCase = true
+                ) || it.lastName.contains(searchValue, ignoreCase = true)
             }
 
             val deleteContact: (Contact) -> Unit = { contact ->
@@ -43,24 +48,29 @@ class MainActivity : ComponentActivity() {
             }
 
 
-            if (listOfContact.isEmpty()) {
-                EmptyDataUi()
-            } else {
-                Column {
+            Scaffold(
+                topBar = {
                     TopBar()
-                    SearchBox(searchValue) {
-                        searchValue = it
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    if (filteredContact.isEmpty()) {
-                        EmptySearchUi()
+                },
+                content = {
+                    if (listOfContact.isEmpty()) {
+                        EmptyDataUi()
                     } else {
-                        ContactLazyColumn(filteredContact, deleteContact)
+                        Column {
+                            SearchBox(searchValue) {
+                                searchValue = it
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            if (filteredContact.isEmpty()) {
+                                EmptySearchUi()
+                            } else {
+                                ContactLazyColumn(filteredContact, deleteContact)
+                            }
+                        }
                     }
+                    FabAddContact(listOfContact)
                 }
-            }
-
-            FabAddContact(listOfContact)
+            )
         }
     }
 }
